@@ -10,37 +10,39 @@ import ShopPage from './pages/shop/shop.component'
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component'
 import CheckoutPage from './pages/checkout/checkout.component'
 import Header from './components/header/header.component'
-import { auth, createUserProfileDocument, addCollectionAndDocuments } from './firebase/firebase.utils'
-import { setCurrentUser } from './redux/user/user.action'
+
 import { selectCurrentUser } from './redux/user/user.selectors'
-import { selectCollectionForPreview } from './redux/shop/shop.selectors'
+import { checkUserSession } from './redux/user/user.action'
 
 class App extends Component {
 
   unsubscribeFromAuth = null
 
   componentDidMount() {
-    const { setCurrentUser, /*collectionsArray*/ } = this.props
+    const { checkUserSession } = this.props
+    checkUserSession()
+    /*
+    const { setCurrentUser, collectionsArray } = this.props
 
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
-      if (userAuth) {
-        const userRef = await createUserProfileDocument(userAuth)
-
-        userRef.onSnapshot(snapShot => {
-          setCurrentUser({
-            id: snapShot.id,
-            ...snapShot.data()
-          })
+        this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+          if (userAuth) {
+            const userRef = await createUserProfileDocument(userAuth)
+    
+            userRef.onSnapshot(snapShot => {
+              setCurrentUser({
+                id: snapShot.id,
+                ...snapShot.data()
+              })
+            })
+          }
+          setCurrentUser(userAuth)
+    
+          addCollectionAndDocuments('collections',
+            collectionsArray.map(({ title, items }) => ({ title, items }))
+          )
+          *Because it's already added to firebase
         })
-      }
-      setCurrentUser(userAuth)
-      /*
-      addCollectionAndDocuments('collections',
-        collectionsArray.map(({ title, items }) => ({ title, items }))
-      )
-      *Because it's already added to firebase
-      */
-    })
+        */
   }
 
   componentWillUnmount() {
@@ -75,7 +77,9 @@ const mapStateToProps = createStructuredSelector({
 })
 
 const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
+  //setCurrentUser: user => dispatch(setCurrentUser(user))
+  checkUserSession: () => dispatch(checkUserSession())
 })
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
